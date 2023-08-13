@@ -64,7 +64,7 @@ jobs:
     needs: create-release
     strategy:
       matrix:
-        release: [jammy, focal]
+        release: [focal]
       fail-fast: false
     steps:
       - name: Copy Repo Files
