@@ -43,10 +43,12 @@ RUN echo en_US.UTF-8 UTF-8 >> /etc/locale.gen \
     python3-setuptools \
     python3 \
     dumb-init \
-    nodejs \
     rsync \
     libpq-dev \
     gosu \
+    maven \
+  && ( curl -fsSL https://deb.nodesource.com/setup_18.x | bash ) \
+  && apt-get install -y --no-install-recommends nodejs \
   && DPKG_ARCH="$(dpkg --print-architecture)" \
   && LSB_RELEASE_CODENAME="$(lsb_release --codename | cut -f2)" \
   && sed -e 's/Defaults.*env_reset/Defaults env_keep = "HTTP_PROXY HTTPS_PROXY NO_PROXY FTP_PROXY http_proxy https_proxy no_proxy ftp_proxy"/' -i /etc/sudoers \
