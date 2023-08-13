@@ -1,14 +1,8 @@
 name: GitHub Actions Runner in Docker - Latest
 on:
   push:
-    paths-ignore:
-      - Dockerfile.base
-      - README.md
-    branches:
-      - master
-      - develop
-  schedule:
-    - cron:  '59 23 * * *'
+    tags:
+      - '*'
 
 permissions:
   contents: read
