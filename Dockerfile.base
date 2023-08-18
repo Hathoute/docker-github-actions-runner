@@ -83,6 +83,7 @@ RUN echo en_US.UTF-8 UTF-8 >> /etc/locale.gen \
   && ( [[ -f /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list ]] && rm /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list || : )
 
 RUN APACHE_MAVEN_VERSION="3.9.4" && echo "Installing Apache Maven $APACHE_MAVEN_VERSION" \
-  && wget https://dlcdn.apache.org/maven/maven-3/$APACHE_MAVEN_VERSION/binaries/apache-maven-$APACHE_MAVEN_VERSION-bin.tar.gz -P /tmp \
-  && tar xf /tmp/apache-maven-$APACHE_MAVEN_VERSION-bin.tar.gz -C /opt && rm /tmp/apache-maven-$APACHE_MAVEN_VERSION-bin.tar.gz \
-  && ln -s /opt/apache-maven-$APACHE_MAVEN_VERSION /opt/maven && ln -s /opt/maven/bin/mvn /usr/bin/mvn
+  && curl -o /tmp/apache-maven.tar.gz https://dlcdn.apache.org/maven/maven-3/$APACHE_MAVEN_VERSION/binaries/apache-maven-$APACHE_MAVEN_VERSION-bin.tar.gz \
+  && tar xf /tmp/apache-maven.tar.gz -C /opt && rm /tmp/apache-maven.tar.gz \
+  && ln -s /opt/apache-maven-$APACHE_MAVEN_VERSION /opt/maven && ln -s /opt/maven/bin/mvn /usr/bin/mvn \
+  && echo "Installing yq (YAML processor)" && pip3 install --no-cache-dir yq
