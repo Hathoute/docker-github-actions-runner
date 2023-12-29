@@ -80,10 +80,14 @@ RUN echo en_US.UTF-8 UTF-8 >> /etc/locale.gen \
   && usermod -aG sudo runner \
   && usermod -aG docker runner \
   && echo '%sudo ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers \
-  && ( [[ -f /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list ]] && rm /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list || : )
-
-RUN APACHE_MAVEN_VERSION="3.9.4" && echo "Installing Apache Maven $APACHE_MAVEN_VERSION" \
+  && ( [[ -f /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list ]] && rm /etc/apt/sources.list.d/devel:kubic:libcontainers:stable.list || : ) \
+  && APACHE_MAVEN_VERSION="3.9.4" && echo "Installing Apache Maven $APACHE_MAVEN_VERSION" \
   && curl -o /tmp/apache-maven.tar.gz https://dlcdn.apache.org/maven/maven-3/$APACHE_MAVEN_VERSION/binaries/apache-maven-$APACHE_MAVEN_VERSION-bin.tar.gz \
   && tar xf /tmp/apache-maven.tar.gz -C /opt && rm /tmp/apache-maven.tar.gz \
   && ln -s /opt/apache-maven-$APACHE_MAVEN_VERSION /opt/maven && ln -s /opt/maven/bin/mvn /usr/bin/mvn \
   && echo "Installing yq (YAML processor)" && pip3 install --no-cache-dir yq
+
+RUN SONAR_SCANNER_VERSION="5.0.1.3006" && echo "Installing Sonar Scanner $SONAR_SCANNER_VERSION" \
+  && curl -o /tmp/sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-$SONAR_SCANNER_VERSION-linux.zip \
+  && unzip /tmp/sonar-scanner.zip -d /opt && rm /tmp/sonar-scanner.zip \
+  && ln -s /opt/sonar-scanner-$SONAR_SCANNER_VERSION-linux /opt/sonar-scanner && ln -s /opt/sonar-scanner/bin/sonar-scanner /usr/bin/sonar-scanner
