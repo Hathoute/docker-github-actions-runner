@@ -1,0 +1,76 @@
+name: GitHub Actions Runner version check
+on:
+  pull_request:
+  schedule:
+    - cron: "* 1 * * *"
+
+jobs:
+  get-current-runner-version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.current.outputs.version }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Get current runner version
+        id: current
+        run: |
+          VERSION=$(grep -o 'GH_RUNNER_VERSION=".*"' Dockerfile | sed -E "s/.+=\"([^\"]+)\"/\1/g")
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+  get-latest-runner-version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.release.outputs.version }}
+    steps:
+      - name: Get latest release
+        id: runner-release
+        uses: pozetroninc/github-action-get-latest-release@2a61c339ea7ef0a336d1daa35ef0cb1418e7676c # v0.8.0
+        with:
+          repository: actions/runner
+          excludes: prerelease, draft
+      - name: Remove prefix
+        id: release
+        run: |
+          VERSION=$(echo "${{ steps.runner-release.outputs.release }}" | sed -E "s/v?(.+)/\1/g")
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+  update-runner-version:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    needs:
+      - get-current-runner-version
+      - get-latest-runner-version
+    if: ${{ needs.get-current-runner-version.outputs.version != needs.get-latest-runner-version.outputs.version }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ github.token }}
+          fetch-depth: 0
+      - name: Format variables
+        run: |
+          echo "CURRENT=${{ needs.get-current-runner-version.outputs.version }}" >> $GITHUB_ENV
+          echo "RELEASE=${{ needs.get-latest-runner-version.outputs.version }}" >> $GITHUB_ENV
+      - run: git checkout -b runner/$RELEASE
+      - name: Change runner version
+        run: sed -i -e "s/=\"$CURRENT\"/=\"$RELEASE\"/g" Dockerfile
+      - name: Commit and push changes
+        run: |
+          git config user.email whitesmith.thedj@gmail.com
+          git config user.name 'Hathoute (auto)'
+          git add Dockerfile
+          git commit -m "chore: update runner version from $CURRENT to $RELEASE"
+          git push -f --set-upstream origin runner/$RELEASE
+      - name: Create new pull request
+        run: >
+          gh pr create --repo "$REPO_NAME" --assignee "$BRANCH_OWNER"
+          --head "runner/$RELEASE" --draft
+          --title "Update runner to $RELEASE" --body "Runner update from $CURRENT to $RELEASE" 2>&1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          BRANCH_NAME: ${{ github.ref_name }}
+          BRANCH_OWNER: ${{ github.actor }}
+          REPO_NAME: ${{ github.repository }}
