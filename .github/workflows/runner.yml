@@ -50,8 +50,8 @@ jobs:
           git push
       - name: Create new pull request
         run: >
-          gh pr create --repo "$REPO_NAME" --assignee "$BRANCH_OWNER" 
-          --head "$BRANCH_NAME" --draft 
+          gh pr create --repo "$REPO_NAME" --assignee "$BRANCH_OWNER"
+          --head "$BRANCH_NAME" --draft
           --title "Update runner to $RELEASE" --body "Runner update from $CURRENT to $RELEASE" 2>&1
         env:
           GITHUB_TOKEN: ${{ github.token }}
