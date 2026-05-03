@@ -89,6 +89,22 @@ function install_yq() {
   mv "/tmp/yq_linux_${DPKG_ARCH}" /usr/local/bin/yq
 }
 
+function install_sonar-scanner() {
+  local SONAR_SCANNER_VERSION SONAR_SCANNER_DOWNLOAD_URL
+
+  SONAR_SCANNER_VERSION=$(curl -sL -H "Accept: application/vnd.github+json" \
+    https://api.github.com/repos/SonarSource/sonar-scanner-cli/releases/latest \
+      | jq -r '.tag_name' | sed 's/^v//g')
+
+  SONAR_SCANNER_DOWNLOAD_URL="https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-${SONAR_SCANNER_VERSION}-linux.zip"
+
+  curl -sSLo /tmp/sonar-scanner.zip "${SONAR_SCANNER_DOWNLOAD_URL}"
+  unzip -q /tmp/sonar-scanner.zip -d /opt
+  rm /tmp/sonar-scanner.zip
+  ln -s "/opt/sonar-scanner-${SONAR_SCANNER_VERSION}-linux" /opt/sonar-scanner
+  ln -s /opt/sonar-scanner/bin/sonar-scanner /usr/bin/sonar-scanner
+}
+
 function install_powershell() {
   local DPKG_ARCH PWSH_VERSION PWSH_DOWNLOAD_URL
 

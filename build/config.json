@@ -105,6 +105,13 @@
       ]
     },
     {
+      "category": "sonar-scanner",
+      "source": "script",
+      "packages": [
+        "sonar-scanner"
+      ]
+    },
+    {
       "category": "yq",
       "source": "script",
       "packages": [
